@@ -64,8 +64,7 @@ function sms_twilio_comment_notifier_admin_page() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'sms_twilio_credentials';
     $twilio_creds = $wpdb->get_results("select * from $table_name where `id` = '1'");
-    error_log(print_r($twilio_creds, true));
-    error_log($twilio_creds->sid);
+
     ?>
     <div>
         <h2>Twilio Settings</h2>
@@ -76,15 +75,15 @@ function sms_twilio_comment_notifier_admin_page() {
             <table>
                 <tr>
                     <td>SID:</td>
-                    <td><input type="text" name="sms_twilio_comment_notifier_sid_value" value="<?php echo($twilio_creds->sid) ?>"/></td>
+                    <td><input type="text" name="sms_twilio_comment_notifier_sid_value" value="<?php echo($twilio_creds[0]->sid) ?>" size="50"/></td>
                 </tr>
                 <tr>
                     <td>Token:</td>
-                    <td><input type="text" name="sms_twilio_comment_notifier_token_value" value="<?php echo($twilio_creds->token) ?>"/></td>
+                    <td><input type="text" name="sms_twilio_comment_notifier_token_value" value="<?php echo($twilio_creds[0]->token) ?>" size="50"/></td>
                 </tr>
                 <tr>
                     <td>Twilio Number:</td>
-                    <td><input type="text" name="sms_twilio_comment_notifier_twilio_number_value" value="<?php echo($twilio_creds->twilio_number) ?>"/></td>
+                    <td><input type="text" name="sms_twilio_comment_notifier_twilio_number_value" value="<?php echo($twilio_creds[0]->twilio_number) ?>" size="50"/></td>
                 </tr>
                 <tr>
                     <td></td>
@@ -123,7 +122,7 @@ function process_sms_twilio_comment_notifier_submit() {
 add_action('show_user_profile', 'sms_twilio_user_comment_notifier_profile_fields');
 add_action('edit_user_profile', 'sms_twilio_user_comment_notifier_profile_fields');
 
-function sms_twilio_comment_notifier_user_profile_fields( $user ) { ?>
+function sms_twilio_user_comment_notifier_profile_fields( $user ) { ?>
     <h3><?php _e("SMS Twilio profile information", "blank"); ?></h3>
 
     <table class="form-table">
@@ -181,18 +180,18 @@ function send_SMS($comment_object, $comment_id, $comment_parent){
     //You could hard code this, but I prefer to keep it in a database table.
 
     global $wpdb;
-
-    $credential_sql = 'select * from '.prefix.'sms_twilio_credentials';
+    $table_name = $wpdb->prefix . 'sms_twilio_credentials';
+    $credential_sql = 'select * from $table_name';
 
     $sid;
     $token;
     $twilio_number;
 
-    foreach( $wpdb->get_results($credential_sql) as $key => $row) {
-        $sid= $row->sid;
-        $token = $row->token;
-        $twilio_number = $row->twilio_number;
-    }
+   $creds = $wpdb->get_results($credential_sql);
+        $sid= $creds[0]->sid;
+        $token = $creds[0]->token;
+        $twilio_number = $creds[0]->twilio_number;
+    
     $client = new Client($sid, $token);
 
     $mobile = get_the_author_meta('sms_twilio_mobile', $comment_parent->user_id);
