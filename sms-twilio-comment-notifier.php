@@ -181,7 +181,7 @@ function send_SMS($comment_object, $comment_id, $comment_parent){
 
     global $wpdb;
     $table_name = $wpdb->prefix . 'sms_twilio_credentials';
-    $credential_sql = 'select * from $table_name';
+    $credential_sql = "select * from $table_name";
 
     $sid;
     $token;
@@ -191,7 +191,7 @@ function send_SMS($comment_object, $comment_id, $comment_parent){
         $sid= $creds[0]->sid;
         $token = $creds[0]->token;
         $twilio_number = $creds[0]->twilio_number;
-    
+
     $client = new Client($sid, $token);
 
     $mobile = get_the_author_meta('sms_twilio_mobile', $comment_parent->user_id);
