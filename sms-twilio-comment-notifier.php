@@ -14,6 +14,8 @@ require __DIR__ . '/twilio-php-master/Twilio/autoload.php';
 
 use Twilio\Rest\Client;
 
+add_filter( 'rest_allow_anonymous_comments', '__return_true' );
+
 // Create the table used to store the Twilio credentials
 register_activation_hook(__FILE__, 'sms_twilio_comment_notifier_create_db');
 
@@ -180,7 +182,7 @@ function send_SMS($comment_object, $comment_id, $comment_parent){
     //You could hard code this, but I prefer to keep it in a database table.
 
     global $wpdb;
-    $table_name = $wpdb->prefix . 'sms_twilio_credentials';
+    $table_name = $wpdb->prefix.'sms_twilio_credentials';
     $credential_sql = "select * from $table_name";
 
     $sid;
@@ -202,7 +204,7 @@ function send_SMS($comment_object, $comment_id, $comment_parent){
             get_the_author_meta('sms_twilio_mobile', $comment_parent->user_id),
             array(
                 'from' => $twilio_number,
-                'body' => "A new post was published at ".get_site_url()." See it here: ".get_comment_link($comment_object)." Reply with the WordPress app here: wordpress://ranchermedia.com"
+                'body' => "A new post was published at ".get_bloginfo('name').". See it here: ".get_comment_link($comment_object)." To reply, type ".$comment_object->comment_post_ID.":: followed by your comment."
             )
         );
     }
